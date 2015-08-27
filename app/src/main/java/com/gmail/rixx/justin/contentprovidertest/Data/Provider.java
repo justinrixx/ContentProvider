@@ -4,10 +4,11 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
 /**
- * Created by justin on 8/27/15.
+ * A content provider to access the database
  */
 public class Provider extends ContentProvider {
 
@@ -39,7 +40,9 @@ public class Provider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
 
+        // These are used to query and are different for each URI type
         String table;
+        String[] columns = null;
 
         /* Figure out what to do based on the type of URI */
         switch (sUriMatcher.match(uri)) {
@@ -72,9 +75,16 @@ public class Provider extends ContentProvider {
 
         }
 
-        // TODO the actual query
+        // Do the actual query
+        DBHelper mDBHelper = new DBHelper(getContext());
 
-        return null;
+        SQLiteDatabase db = mDBHelper.getReadableDatabase();
+
+        Cursor result = db.query(table, columns, selection, selectionArgs, null, null, null);
+
+        db.close();
+
+        return result;
     }
 
     @Override
