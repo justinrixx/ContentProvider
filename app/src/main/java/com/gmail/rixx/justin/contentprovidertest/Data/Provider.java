@@ -1,6 +1,7 @@
 package com.gmail.rixx.justin.contentprovidertest.Data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -19,7 +20,7 @@ public class Provider extends ContentProvider {
     private static final int CARS_ID = 4;
     private static final int CARS_COLOR = 5;
 
-    /* Set up the URI matcher */
+    /* Set up the UriMatcher */
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
@@ -36,13 +37,23 @@ public class Provider extends ContentProvider {
         return false;
     }
 
+    /**
+     * Query for data in the database
+     * @param uri What type of data to look for. Valid URIs can be obtained from the Contract class
+     * @param projection Which columns to look for. The column names are found in the Contract class
+     * @param selection Selection statement for an SQL query
+     * @param selectionArgs Arguments to match the selection statement
+     * @param sortOrder Not used
+     * @return A cursor pointing to the data specified by the URI
+     *
+     * @throws IllegalStateException Be sure to use a valid URI
+     */
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
 
-        // These are used to query and are different for each URI type
+        // Which table to look in
         String table;
-        String[] columns = null;
 
         /* Figure out what to do based on the type of URI */
         switch (sUriMatcher.match(uri)) {
@@ -80,7 +91,7 @@ public class Provider extends ContentProvider {
 
         SQLiteDatabase db = mDBHelper.getReadableDatabase();
 
-        Cursor result = db.query(table, columns, selection, selectionArgs, null, null, null);
+        Cursor result = db.query(table, projection, selection, selectionArgs, null, null, null);
 
         db.close();
 
@@ -92,8 +103,60 @@ public class Provider extends ContentProvider {
         return null;
     }
 
+    /**
+     * Insert an item into the database
+     * @param uri A URI specifying which table to insert into
+     * @param values The data to insert. This must include all the COLUMN_* constants for the entry
+     *               <p/> specified in the Contract class
+     * @return A URI pointing to the new item
+     */
     @Override
     public Uri insert(Uri uri, ContentValues values) {
+
+        // Which table does the URI specify?
+        switch (sUriMatcher.match(uri)) {
+
+            case CARS: {
+
+                // Check for incomplete data
+                if (!values.containsKey(Contract.CarEntry.COLUMN_MAKE)
+                        || !values.containsKey(Contract.CarEntry.COLUMN_MODEL)
+                        || !values.containsKey(Contract.CarEntry.COLUMN_YEAR)) {
+                    throw new IllegalArgumentException("Provided ContentValues object does not contain all the necessary columns. See the Contract class for details");
+                }
+
+                // insert the item into the database
+                DBHelper mDBHelper = new DBHelper(getContext());
+                SQLiteDatabase db = mDBHelper.getWritableDatabase();
+
+                long id = db.insert(Contract.CarEntry.TABLE_NAME, null, values);
+
+                db.close();
+
+                // return the URI to the new item
+                return ContentUris.withAppendedId(uri, id);
+            }
+
+            case MAKES: {
+
+                // Check for incomplete data
+                if (!values.containsKey(Contract.MakeEntry.COLUMN_NAME)) {
+                    throw new IllegalArgumentException("Provided ContentValues object does not contain all the necessary columns. See the Contract class for details");
+                }
+
+                // insert the item into the database
+                DBHelper mDBHelper = new DBHelper(getContext());
+                SQLiteDatabase db = mDBHelper.getWritableDatabase();
+
+                long id = db.insert(Contract.MakeEntry.TABLE_NAME, null, values);
+
+                db.close();
+
+                // return the URI to the new item
+                return ContentUris.withAppendedId(uri, id);
+            }
+        }
+
         return null;
     }
 
