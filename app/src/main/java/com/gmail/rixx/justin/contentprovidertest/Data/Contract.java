@@ -1,5 +1,6 @@
 package com.gmail.rixx.justin.contentprovidertest.Data;
 
+import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -33,6 +34,16 @@ public class Contract {
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_MAKES).build();
 
+        /**
+         * Append an id to the URI. Used by outside methods to get valid URIs to use with the content
+         * <p/> provider
+         * @param Id The desired item's ID
+         * @return A valid URI pointing to that item
+         */
+        public static Uri getContentUriWithID(int Id) {
+            return ContentUris.withAppendedId(CONTENT_URI, Id);
+        }
+
         public static final String TABLE_NAME  = "makes";
 
         // column storing the name of the make as a string
@@ -44,9 +55,28 @@ public class Contract {
      */
     public static final class CarEntry implements BaseColumns {
 
-        // The URI to access the makes table
+        // The URI to access the cars table
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_CARS).build();
+
+        /**
+         * Append an id to the URI. Used by outside methods to get valid URIs to use with the content
+         * <p/> provider
+         * @param Id The desired item's ID
+         * @return A valid URI pointing to that item
+         */
+        public static Uri getContentUriWithID(int Id) {
+            return ContentUris.withAppendedId(CONTENT_URI, Id);
+        }
+
+        /**
+         * Get a URI to all cars with a specific color
+         * @param color The color to look for
+         * @return A valid URI to get them
+         */
+        public static Uri getContentUriWithColor(String color) {
+            return CONTENT_URI.buildUpon().appendPath("color").appendPath(color).build();
+        }
 
         public static final String TABLE_NAME  = "cars";
 
