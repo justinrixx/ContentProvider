@@ -160,9 +160,44 @@ public class Provider extends ContentProvider {
         return null;
     }
 
+    /**
+     * Delete an entry from the database. This only allows deleting single entries. The URI must
+     * <p/> include the id of the entry to delete
+     * @param uri The URI pointing to the entry to delete
+     * @param selection Ignored
+     * @param selectionArgs Ignored
+     * @return The number of rows deleted
+     */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+
+        switch (sUriMatcher.match(uri)) {
+
+            case CARS_ID: {
+
+                DBHelper mDBHelper = new DBHelper(getContext());
+
+                SQLiteDatabase db = mDBHelper.getWritableDatabase();
+
+                // only delete the one that matches the ID
+                return db.delete(Contract.CarEntry.TABLE_NAME, Contract.CarEntry._ID + " = ? ",
+                        new String[] { uri.getLastPathSegment() });
+            }
+
+            case MAKES_ID: {
+
+                DBHelper mDBHelper = new DBHelper(getContext());
+
+                SQLiteDatabase db = mDBHelper.getWritableDatabase();
+
+                return db.delete(Contract.MakeEntry.TABLE_NAME, Contract.MakeEntry._ID + " = ? ",
+                        new String[] { uri.getLastPathSegment() });
+            }
+
+            // any other type of URI is not supported
+            default:
+                throw new IllegalArgumentException("Unsupported delete URI");
+        }
     }
 
     @Override
