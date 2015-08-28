@@ -1,6 +1,7 @@
 package com.gmail.rixx.justin.contentprovidertest.Data;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -82,7 +83,7 @@ public class Provider extends ContentProvider {
                 break;
 
             default:
-                throw new IllegalArgumentException("Invalid URI");
+                throw new IllegalArgumentException("Invalid URI " + uri.toString());
 
         }
 
@@ -204,12 +205,43 @@ public class Provider extends ContentProvider {
 
             // any other type of URI is not supported
             default:
-                throw new IllegalArgumentException("Unsupported delete URI");
+                throw new IllegalArgumentException("Unsupported delete URI " + uri.toString());
         }
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+
+        switch (sUriMatcher.match(uri)) {
+
+            case CARS: {
+
+                DBHelper mDBHelper = new DBHelper(getContext());
+
+                SQLiteDatabase db = mDBHelper.getWritableDatabase();
+
+                int numAffected = db.update(Contract.CarEntry.TABLE_NAME, values, selection, selectionArgs);
+
+                db.close();
+
+                return numAffected;
+            }
+
+            case MAKES: {
+
+                DBHelper mDBHelper = new DBHelper(getContext());
+
+                SQLiteDatabase db = mDBHelper.getWritableDatabase();
+
+                int numAffected = db.update(Contract.MakeEntry.TABLE_NAME, values, selection, selectionArgs);
+
+                db.close();
+
+                return numAffected;
+            }
+
+            default:
+                throw new IllegalArgumentException("Unsupported update URI " + uri.toString());
+        }
     }
 }
