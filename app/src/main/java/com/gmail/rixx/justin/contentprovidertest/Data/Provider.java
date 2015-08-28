@@ -1,7 +1,6 @@
 package com.gmail.rixx.justin.contentprovidertest.Data;
 
 import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -13,6 +12,8 @@ import android.net.Uri;
  * A content provider to access the database
  */
 public class Provider extends ContentProvider {
+
+    private DBHelper mDBHelper;
 
     /* The integer codes for the various queries */
     private static final int MAKES = 1;
@@ -33,9 +34,16 @@ public class Provider extends ContentProvider {
     }
 
 
+    /**
+     * Just initialize the SQLiteOpenHelper object
+     * @return true when done
+     */
     @Override
     public boolean onCreate() {
-        return false;
+
+        mDBHelper = new DBHelper(getContext());
+
+        return true;
     }
 
     /**
@@ -87,9 +95,6 @@ public class Provider extends ContentProvider {
 
         }
 
-        // Do the actual query
-        DBHelper mDBHelper = new DBHelper(getContext());
-
         SQLiteDatabase db = mDBHelper.getReadableDatabase();
 
         Cursor result = db.query(table, projection, selection, selectionArgs, null, null, null);
@@ -127,7 +132,6 @@ public class Provider extends ContentProvider {
                 }
 
                 // insert the item into the database
-                DBHelper mDBHelper = new DBHelper(getContext());
                 SQLiteDatabase db = mDBHelper.getWritableDatabase();
 
                 long id = db.insert(Contract.CarEntry.TABLE_NAME, null, values);
@@ -146,7 +150,6 @@ public class Provider extends ContentProvider {
                 }
 
                 // insert the item into the database
-                DBHelper mDBHelper = new DBHelper(getContext());
                 SQLiteDatabase db = mDBHelper.getWritableDatabase();
 
                 long id = db.insert(Contract.MakeEntry.TABLE_NAME, null, values);
@@ -176,8 +179,6 @@ public class Provider extends ContentProvider {
 
             case CARS_ID: {
 
-                DBHelper mDBHelper = new DBHelper(getContext());
-
                 SQLiteDatabase db = mDBHelper.getWritableDatabase();
 
                 // only delete the one that matches the ID
@@ -190,8 +191,6 @@ public class Provider extends ContentProvider {
             }
 
             case MAKES_ID: {
-
-                DBHelper mDBHelper = new DBHelper(getContext());
 
                 SQLiteDatabase db = mDBHelper.getWritableDatabase();
 
@@ -216,8 +215,6 @@ public class Provider extends ContentProvider {
 
             case CARS: {
 
-                DBHelper mDBHelper = new DBHelper(getContext());
-
                 SQLiteDatabase db = mDBHelper.getWritableDatabase();
 
                 int numAffected = db.update(Contract.CarEntry.TABLE_NAME, values, selection, selectionArgs);
@@ -228,8 +225,6 @@ public class Provider extends ContentProvider {
             }
 
             case MAKES: {
-
-                DBHelper mDBHelper = new DBHelper(getContext());
 
                 SQLiteDatabase db = mDBHelper.getWritableDatabase();
 
