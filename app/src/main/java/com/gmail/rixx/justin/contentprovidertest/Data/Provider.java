@@ -180,8 +180,12 @@ public class Provider extends ContentProvider {
                 SQLiteDatabase db = mDBHelper.getWritableDatabase();
 
                 // only delete the one that matches the ID
-                return db.delete(Contract.CarEntry.TABLE_NAME, Contract.CarEntry._ID + " = ? ",
+                int numAffected = db.delete(Contract.CarEntry.TABLE_NAME, Contract.CarEntry._ID + " = ? ",
                         new String[] { uri.getLastPathSegment() });
+
+                db.close();
+
+                return numAffected;
             }
 
             case MAKES_ID: {
@@ -190,8 +194,12 @@ public class Provider extends ContentProvider {
 
                 SQLiteDatabase db = mDBHelper.getWritableDatabase();
 
-                return db.delete(Contract.MakeEntry.TABLE_NAME, Contract.MakeEntry._ID + " = ? ",
+                int numAffected = db.delete(Contract.MakeEntry.TABLE_NAME, Contract.MakeEntry._ID + " = ? ",
                         new String[] { uri.getLastPathSegment() });
+
+                db.close();
+
+                return numAffected;
             }
 
             // any other type of URI is not supported
