@@ -1,6 +1,7 @@
 package com.gmail.rixx.justin.contentprovidertest.Data;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -106,7 +107,20 @@ public class Provider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        return null;
+
+        switch (sUriMatcher.match(uri)) {
+
+            case MAKES:
+                return ContentResolver.CURSOR_DIR_BASE_TYPE + "/Make";
+            case MAKES_ID:
+                return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/Make";
+            case CARS:
+                return ContentResolver.CURSOR_DIR_BASE_TYPE + "/Car";
+            case CARS_ID:
+                return ContentResolver.CURSOR_ITEM_BASE_TYPE + "/Car";
+            default:
+                return null;
+        }
     }
 
     /**
